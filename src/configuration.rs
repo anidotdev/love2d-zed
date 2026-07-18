@@ -6,7 +6,8 @@ use zed_extension_api::serde_json::{Value, json};
 const LOVE_RUNTIME: &str = "LuaJIT";
 const LOVE_GLOBAL: &str = "love";
 
-pub fn library_path() -> Result<PathBuf, String> {
+/// Returns the root directory containing all bundled LuaCATS versions.
+pub fn extension_library_root() -> Result<PathBuf, String> {
     let extension_dir =
         env::current_dir().map_err(|e| format!("failed to determine extension directory: {e}"))?;
 
@@ -24,7 +25,7 @@ pub fn apply_love_defaults(settings: &mut Value, library: &Path) {
     let diagnostics = ensure_object(lua, "diagnostics");
     let globals = ensure_array(diagnostics, "globals");
 
-    if !globals.iter().any(|v| v == LOVE_GLOBAL) {
+    if !globals.iter().any(|v| v.as_str() == Some(LOVE_GLOBAL)) {
         globals.push(json!(LOVE_GLOBAL));
     }
 
@@ -34,7 +35,10 @@ pub fn apply_love_defaults(settings: &mut Value, library: &Path) {
 
     let library = library.to_string_lossy().to_string();
 
-    if !libraries.iter().any(|v| v == &json!(library)) {
+    if !libraries
+        .iter()
+        .any(|v| v.as_str() == Some(library.as_str()))
+    {
         libraries.push(json!(library));
     }
 }

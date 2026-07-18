@@ -1,6 +1,7 @@
 mod configuration;
 mod detector;
-use configuration::{apply_love_defaults, library_path};
+mod version;
+use crate::configuration::{apply_love_defaults, extension_library_root};
 use detector::is_love_project;
 use std::fs;
 use zed_extension_api::serde_json::json;
@@ -207,7 +208,12 @@ impl zed::Extension for Love2DExtension {
             .unwrap_or_else(|| json!({}));
 
         if is_love_project(worktree) {
-            let library = library_path()?;
+            let root = extension_library_root()?;
+
+            let version = version::detect(worktree);
+
+            let library = version::library_path(&root, version);
+
             apply_love_defaults(&mut settings, &library);
         }
 
