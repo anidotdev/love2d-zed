@@ -1,0 +1,10 @@
+id = "love2d"
+name = "Love2D"
+version = "0.1.0"
+schema_version = 1
+
+authors = ["Animesh Gautam"]
+
+description = "A Zed extension for developing games with the LÖVE framework."
+
+repository = "https://github.com/anidotdev/love2d-zed"
