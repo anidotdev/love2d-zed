@@ -1,6 +1,10 @@
 [package]
 name = "love2d-zed"
 version = "0.1.0"
-edition = "2024"
+edition = "2026"
+
+[lib]
+crate-type = ["cdylib"]
 
 [dependencies]
+zed_extension_api = "0.7.0"
