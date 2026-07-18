@@ -1,4 +1,9 @@
+mod configuration;
+mod detector;
+use configuration::{apply_love_defaults, library_path};
+use detector::is_love_project;
 use std::fs;
+use zed_extension_api::serde_json::json;
 use zed_extension_api::{
     self as zed, CodeLabel, CodeLabelSpan, LanguageServerId, Result, lsp::CompletionKind,
     settings::LspSettings,
@@ -126,10 +131,13 @@ impl zed::Extension for Love2DExtension {
         language_server_id: &LanguageServerId,
         worktree: &zed::Worktree,
     ) -> Result<zed::Command> {
+        let _is_love = is_love_project(worktree);
+
         let lua_binary = self.language_server_binary(language_server_id, worktree)?;
+
         Ok(zed::Command {
             command: lua_binary.path,
-            args: lua_binary.args.unwrap_or_else(std::vec::Vec::new),
+            args: lua_binary.args.unwrap_or_default(),
             env: vec![],
         })
     }
@@ -194,8 +202,16 @@ impl zed::Extension for Love2DExtension {
         server_id: &zed_extension_api::LanguageServerId,
         worktree: &zed_extension_api::Worktree,
     ) -> zed_extension_api::Result<Option<zed_extension_api::serde_json::Value>> {
-        LspSettings::for_worktree(server_id.as_ref(), worktree)
-            .map(|lsp_settings| lsp_settings.settings.clone())
+        let mut settings = LspSettings::for_worktree(server_id.as_ref(), worktree)?
+            .settings
+            .unwrap_or_else(|| json!({}));
+
+        if is_love_project(worktree) {
+            let library = library_path()?;
+            apply_love_defaults(&mut settings, &library);
+        }
+
+        Ok(Some(settings))
     }
 }
 
