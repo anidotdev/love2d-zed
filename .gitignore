@@ -1,1 +1,15 @@
-/target
+target/
+
+extension.wasm
+
+**/*.rs.bk
+
+.DS_Store
+
+Thumbs.db
+Desktop.ini
+
+.vscode/
+.idea/
+
+rust-project.json
